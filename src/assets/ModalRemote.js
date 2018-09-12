@@ -209,14 +209,14 @@ function ModalRemote (modalId) {
       window.location.href = response.forceRedirect
       return
     }
-    // Reload datatable if response contain forceReload field
+
+    // Reload datatable(s) if response contain forceReload field
     if (response.forceReload !== undefined && response.forceReload) {
-      if (response.forceReload == 'true') {
-        // Backwards compatible reload of fixed crud-datatable-pjax
-        $.pjax.reload({container: '#crud-datatable-pjax'})
-      } else {
-        $.pjax.reload({container: response.forceReload})
-      }
+      let containers = response.forceReload.split(',')
+
+      containers.map((container) => {
+        $.pjax.reload({container})
+      })
     }
 
     // Close modal if response contains forceClose field
