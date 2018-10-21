@@ -1,3 +1,5 @@
+/* global $ jQuery */
+
 /*!
  * Modal Remote
  * =================================
@@ -13,9 +15,9 @@
 function ModalRemote (modalId) {
   this.defaults = {
     okLabel: 'OK',
-    executeLabel: 'Execute',
-    cancelLabel: 'Cancel',
-    loadingTitle: 'Loading'
+    executeLabel: 'Folyamatban',
+    cancelLabel: 'Mégsem',
+    loadingTitle: 'Töltés'
   }
 
   this.modal = $(modalId)
@@ -193,7 +195,7 @@ function ModalRemote (modalId) {
   function errorRemoteResponse (response) {
     this.setTitle(response.status + response.statusText)
     this.setContent(response.responseText)
-    this.addFooterButton('Close', 'button', 'btn btn-default', function (button, event) {
+    this.addFooterButton('Bezár', 'button', 'btn btn-default', function (button, event) {
       this.hide()
     })
   }
