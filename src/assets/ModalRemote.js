@@ -12,7 +12,7 @@
   }
 }(jQuery))
 
-function ModalRemote (modalId) {
+function ModalRemote(modalId) {
   this.defaults = {
     okLabel: 'OK',
     executeLabel: 'Folyamatban',
@@ -183,7 +183,7 @@ function ModalRemote (modalId) {
      * - Ensure clear and show modal
      * - Show loading state in modal
      */
-  function beforeRemoteRequest () {
+  function beforeRemoteRequest() {
     this.show()
     this.displayLoading()
   }
@@ -192,9 +192,10 @@ function ModalRemote (modalId) {
      * When remote sends error response
      * @param {string} response
      */
-  function errorRemoteResponse (response) {
-    this.setTitle(response.status + response.statusText)
-    this.setContent(response.responseText)
+  function errorRemoteResponse(response) {
+    var error = response.responseText.split(': ')
+    this.setTitle('Hiba')
+    this.setContent(error[1] || response.responseText)
     this.addFooterButton('Bezár', 'button', 'btn btn-default', function (button, event) {
       this.hide()
     })
@@ -204,7 +205,7 @@ function ModalRemote (modalId) {
      * When remote sends success response
      * @param {string} response
      */
-  function successRemoteResponse (response) {
+  function successRemoteResponse(response) {
     // Close modal then redirect to a new url if response contains forceRedirect field
     if (response.forceRedirect !== undefined && response.forceRedirect) {
       this.hide()
@@ -214,10 +215,10 @@ function ModalRemote (modalId) {
 
     // Reload datatable(s) if response contain forceReload field
     if (response.forceReload !== undefined && response.forceReload) {
-      let containers = response.forceReload.split(',')
+      var containers = response.forceReload.split(',')
 
       containers.map((container) => {
-        $.pjax.reload({container})
+        $.pjax.reload({ container })
       })
     }
 
@@ -299,31 +300,31 @@ function ModalRemote (modalId) {
 
     var instance = this
     if (okLabel !== false) {
-	        this.addFooterButton(
-	            okLabel === undefined ? this.defaults.okLabel : okLabel,
-	            'submit',
-	            'btn btn-primary',
-	            function (e) {
-	                var data
+      this.addFooterButton(
+        okLabel === undefined ? this.defaults.okLabel : okLabel,
+        'submit',
+        'btn btn-primary',
+        function (e) {
+          var data
 
-	                // Test if browser supports FormData which handles uploads
-	                if (window.FormData) {
-	                    data = new FormData($('#ModalRemoteConfirmForm')[0])
-	                    if (typeof selectedIds !== 'undefined' && selectedIds) { data.append('pks', selectedIds.join()) }
-	                } else {
-	                    // Fallback to serialize
-	                    data = $('#ModalRemoteConfirmForm')
-	                    if (typeof selectedIds !== 'undefined' && selectedIds) { data.pks = selectedIds }
-	                    data = data.serializeArray()
-	                }
+          // Test if browser supports FormData which handles uploads
+          if (window.FormData) {
+            data = new FormData($('#ModalRemoteConfirmForm')[0])
+            if (typeof selectedIds !== 'undefined' && selectedIds) { data.append('pks', selectedIds.join()) }
+          } else {
+            // Fallback to serialize
+            data = $('#ModalRemoteConfirmForm')
+            if (typeof selectedIds !== 'undefined' && selectedIds) { data.pks = selectedIds }
+            data = data.serializeArray()
+          }
 
-	                instance.doRemote(
-	                    dataUrl,
-	                    dataRequestMethod,
-	                    data
-	                )
-	            }
-	        )
+          instance.doRemote(
+            dataUrl,
+            dataRequestMethod,
+            data
+          )
+        }
+      )
     }
 
     this.addFooterButton(
