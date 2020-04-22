@@ -38,8 +38,7 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             <?= implode(",\n            ", $rules) ?>,
         ];
@@ -48,8 +47,7 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
     /**
      * @inheritdoc
      */
-    public function scenarios()
-    {
+    public function scenarios() {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
@@ -61,8 +59,7 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
-    {
+    public function search($params) {
         $query = <?= isset($modelAlias) ? $modelAlias : $modelClass ?>::find();
 
         $dataProvider = new ActiveDataProvider([

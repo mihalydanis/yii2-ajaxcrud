@@ -1,4 +1,5 @@
 <?php
+
 namespace johnitvn\ajaxcrud\generators;
 
 use Yii;
@@ -9,6 +10,7 @@ use yii\gii\CodeFile;
 use yii\helpers\Inflector;
 use yii\helpers\VarDumper;
 use yii\web\Controller;
+
 /**
  * Generates CRUD
  *
@@ -22,8 +24,7 @@ use yii\web\Controller;
  * @author John Martin <john.itvn@gmail.com>
  * @since 1.0
  */
-class Generator extends \yii\gii\Generator
-{
+class Generator extends \yii\gii\Generator {
     public $modelClass;
     public $controllerClass;
     public $viewPath;
@@ -33,16 +34,14 @@ class Generator extends \yii\gii\Generator
     /**
      * @inheritdoc
      */
-    public function getName()
-    {
+    public function getName() {
         return 'Ajax CRUD Generator';
     }
 
     /**
      * @inheritdoc
      */
-    public function getDescription()
-    {
+    public function getDescription() {
         return 'This generator generates a controller and views that implement CRUD (Create, Read, Update, Delete)
             operations for the specified data model with template for Single Page Ajax Administration';
     }
@@ -50,8 +49,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return array_merge(parent::rules(), [
             [['controllerClass', 'modelClass', 'searchModelClass', 'baseControllerClass'], 'filter', 'filter' => 'trim'],
             [['modelClass', 'controllerClass', 'baseControllerClass'], 'required'],
@@ -72,8 +70,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return array_merge(parent::attributeLabels(), [
             'modelClass' => 'Model Class',
             'controllerClass' => 'Controller Class',
@@ -83,16 +80,14 @@ class Generator extends \yii\gii\Generator
         ]);
     }
 
-
     /**
      * @inheritdoc
      */
-    public function hints()
-    {
+    public function hints() {
         return array_merge(parent::hints(), [
             'modelClass' => 'This is the ActiveRecord class associated with the table that CRUD will be built upon.
                 You should provide a fully qualified class name, e.g., <code>app\models\Post</code>.',
-             'controllerClass' => 'This is the name of the controller class to be generated. You should
+            'controllerClass' => 'This is the name of the controller class to be generated. You should
                 provide a fully qualified namespaced class (e.g. <code>app\controllers\PostController</code>),
                 and class name should be in CamelCase with an uppercase first letter. Make sure the class
                 is using the same namespace as specified by your application\'s controllerNamespace property.',
@@ -109,25 +104,22 @@ class Generator extends \yii\gii\Generator
     /**
      * @inheritdoc
      */
-    public function requiredTemplates()
-    {
+    public function requiredTemplates() {
         return ['controller.php'];
     }
 
     /**
      * @inheritdoc
      */
-    public function stickyAttributes()
-    {
+    public function stickyAttributes() {
         return array_merge(parent::stickyAttributes(), ['baseControllerClass']);
     }
 
     /**
      * Checks if model class is valid
      */
-    public function validateModelClass()
-    {
-        /* @var $class ActiveRecord */     
+    public function validateModelClass() {
+        /* @var $class ActiveRecord */
         $class = $this->modelClass;
         $pk = $class::primaryKey();
         if (empty($pk)) {
@@ -138,8 +130,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @inheritdoc
      */
-    public function generate()
-    {
+    public function generate() {
         $controllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->controllerClass, '\\')) . '.php');
         $files = [
             new CodeFile($controllerFile, $this->render('controller.php')),
@@ -150,14 +141,23 @@ class Generator extends \yii\gii\Generator
             $files[] = new CodeFile($searchModel, $this->render('search.php'));
         }
 
-        $viewPath = $this->getViewPath();
-        $templatePath = $this->getTemplatePath() . '/views';
+        $files = $this->renderViewFile($files);
+        $files = $this->renderViewFile($files, 'partials');
+
+        return $files;
+    }
+
+    private function renderViewFile($files, $viewSubDir = '') {
+        $templatePath = $viewSubDir ? $this->getTemplatePath() . "/views/$viewSubDir" : $this->getTemplatePath() . '/views';
+        $viewPath = $viewSubDir ? $this->getViewPath() . "/$viewSubDir" : $this->getViewPath();
+        
         foreach (scandir($templatePath) as $file) {
             if (empty($this->searchModelClass) && $file === '_search.php') {
                 continue;
             }
             if (is_file($templatePath . '/' . $file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                $files[] = new CodeFile("$viewPath/$file", $this->render("views/$file"));
+                $viewDir = $viewSubDir ? "views/$viewSubDir/$file" : "views/$file";
+                $files[] = new CodeFile("$viewPath/$file", $this->render($viewDir));
             }
         }
 
@@ -167,8 +167,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @return string the controller ID (without the module ID prefix)
      */
-    public function getControllerID()
-    {
+    public function getControllerID() {
         $pos = strrpos($this->controllerClass, '\\');
         $class = substr(substr($this->controllerClass, $pos + 1), 0, -10);
 
@@ -178,8 +177,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @return string the controller view path
      */
-    public function getViewPath()
-    {
+    public function getViewPath() {
         if (empty($this->viewPath)) {
             return Yii::getAlias('@app/views/' . $this->getControllerID());
         } else {
@@ -187,8 +185,7 @@ class Generator extends \yii\gii\Generator
         }
     }
 
-    public function getNameAttribute()
-    {
+    public function getNameAttribute() {
         foreach ($this->getColumnNames() as $name) {
             if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title')) {
                 return $name;
@@ -206,8 +203,7 @@ class Generator extends \yii\gii\Generator
      * @param string $attribute
      * @return string
      */
-    public function generateActiveField($attribute)
-    {
+    public function generateActiveField($attribute) {
         $tableSchema = $this->getTableSchema();
         if ($tableSchema === false || !isset($tableSchema->columns[$attribute])) {
             if (preg_match('/^(password|pass|passwd|passcode)$/i', $attribute)) {
@@ -233,7 +229,7 @@ class Generator extends \yii\gii\Generator
                     $dropDownOptions[$enumValue] = Inflector::humanize($enumValue);
                 }
                 return "\$form->field(\$model, '$attribute')->dropDownList("
-                    . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)).", ['prompt' => ''])";
+                    . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)) . ", ['prompt' => ''])";
             } elseif ($column->phpType !== 'string' || $column->size === null) {
                 return "\$form->field(\$model, '$attribute')->$input()";
             } else {
@@ -247,8 +243,7 @@ class Generator extends \yii\gii\Generator
      * @param string $attribute
      * @return string
      */
-    public function generateActiveSearchField($attribute)
-    {
+    public function generateActiveSearchField($attribute) {
         $tableSchema = $this->getTableSchema();
         if ($tableSchema === false) {
             return "\$form->field(\$model, '$attribute')";
@@ -266,8 +261,7 @@ class Generator extends \yii\gii\Generator
      * @param \yii\db\ColumnSchema $column
      * @return string
      */
-    public function generateColumnFormat($column)
-    {
+    public function generateColumnFormat($column) {
         if ($column->phpType === 'boolean') {
             return 'boolean';
         } elseif ($column->type === 'text') {
@@ -287,8 +281,7 @@ class Generator extends \yii\gii\Generator
      * Generates validation rules for the search model.
      * @return array the generated validation rules
      */
-    public function generateSearchRules()
-    {
+    public function generateSearchRules() {
         if (($table = $this->getTableSchema()) === false) {
             return ["[['" . implode("', '", $this->getColumnNames()) . "'], 'safe']"];
         }
@@ -330,8 +323,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @return array searchable attributes
      */
-    public function getSearchAttributes()
-    {
+    public function getSearchAttributes() {
         return $this->getColumnNames();
     }
 
@@ -339,8 +331,7 @@ class Generator extends \yii\gii\Generator
      * Generates the attribute labels for the search model.
      * @return array the generated attribute labels (name => label)
      */
-    public function generateSearchLabels()
-    {
+    public function generateSearchLabels() {
         /* @var $model \yii\base\Model */
         $model = new $this->modelClass();
         $attributeLabels = $model->attributeLabels();
@@ -368,8 +359,7 @@ class Generator extends \yii\gii\Generator
      * Generates search conditions
      * @return array
      */
-    public function generateSearchConditions()
-    {
+    public function generateSearchConditions() {
         $columns = [];
         if (($table = $this->getTableSchema()) === false) {
             $class = $this->modelClass;
@@ -415,7 +405,7 @@ class Generator extends \yii\gii\Generator
                 . "\n" . str_repeat(' ', 8) . "]);\n";
         }
         if (!empty($likeConditions)) {
-            $conditions[] = "\$query" . implode("\n" . str_repeat(' ', 12), $likeConditions) . ";\n";
+            $conditions[] = '$query' . implode("\n" . str_repeat(' ', 12), $likeConditions) . ";\n";
         }
 
         return $conditions;
@@ -425,8 +415,7 @@ class Generator extends \yii\gii\Generator
      * Generates URL parameters
      * @return string
      */
-    public function generateUrlParams()
-    {
+    public function generateUrlParams() {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;
         $pks = $class::primaryKey();
@@ -454,8 +443,7 @@ class Generator extends \yii\gii\Generator
      * Generates action parameters
      * @return string
      */
-    public function generateActionParams()
-    {
+    public function generateActionParams() {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;
         $pks = $class::primaryKey();
@@ -470,8 +458,7 @@ class Generator extends \yii\gii\Generator
      * Generates parameter tags for phpdoc
      * @return array parameter tags for phpdoc
      */
-    public function generateActionParamComments()
-    {
+    public function generateActionParamComments() {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;
         $pks = $class::primaryKey();
@@ -499,8 +486,7 @@ class Generator extends \yii\gii\Generator
      * Returns table schema for current model class or false if it is not an active record
      * @return boolean|\yii\db\TableSchema
      */
-    public function getTableSchema()
-    {
+    public function getTableSchema() {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;
         if (is_subclass_of($class, 'yii\db\ActiveRecord')) {
@@ -513,8 +499,7 @@ class Generator extends \yii\gii\Generator
     /**
      * @return array model column names
      */
-    public function getColumnNames()
-    {
+    public function getColumnNames() {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;
         if (is_subclass_of($class, 'yii\db\ActiveRecord')) {

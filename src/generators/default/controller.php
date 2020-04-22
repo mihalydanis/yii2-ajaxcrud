@@ -38,37 +38,18 @@ use yii\data\ActiveDataProvider;
 <?php endif; ?>
 use <?= ltrim($generator->baseControllerClass, '\\') ?>;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use \yii\web\Response;
+use yii\web\Response;
 use yii\helpers\Html;
 
 /**
  * <?= $controllerClass ?> implements the CRUD actions for <?= $modelClass ?> model.
  */
-class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?>
-{
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                    'bulkdelete' => ['post'],
-                ],
-            ],
-        ];
-    }
-
+class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?> {
     /**
      * Lists all <?= $modelClass ?> models.
      * @return mixed
      */
-    public function actionIndex()
-    {    
+    public function actionIndex() {    
        <?php if (!empty($generator->searchModelClass)): ?>
  $searchModel = new <?= isset($searchModelAlias) ? $searchModelAlias : $searchModelClass ?>();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -94,20 +75,17 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
      * @return mixed
      */
-    public function actionView(<?= $actionParams ?>)
-    {   
+    public function actionView(<?= $actionParams ?>) {   
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax){
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                    'title'=> "<?= $modelClass ?> #".<?= $actionParams ?>,
-                    'content'=>$this->renderAjax('view', [
-                        'model' => $this->findModel(<?= $actionParams ?>),
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Edit',['update','<?= substr($actionParams,1) ?>'=><?= $actionParams ?>],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];    
-        }else{
+                'title' => "<?= $modelClass ?> #".<?= $actionParams ?>,
+                'content' => $this->renderAjax('view', [
+                    'model' => $this->findModel(<?= $actionParams ?>),
+                ])
+            ];    
+        } else {
             return $this->render('view', [
                 'model' => $this->findModel(<?= $actionParams ?>),
             ]);
@@ -120,50 +98,33 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
-    {
+    public function actionCreate() {
         $request = Yii::$app->request;
         $model = new <?= $modelClass ?>();  
 
-        if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if($request->isGet) {
                 return [
-                    'title'=> "Create new <?= $modelClass ?>",
-                    'content'=>$this->renderAjax('create', [
+                    'title' => "Új <?= $modelClass ?>",
+                    'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
+                    'footer' => Html::button('Mehet',['class' => 'btn btn-primary','type' =>"submit"])
         
                 ];         
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()){
+                return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+            } else {           
                 return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "Create new <?= $modelClass ?>",
-                    'content'=>'<span class="text-success">Create <?= $modelClass ?> success</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Create More',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])
-        
-                ];         
-            }else{           
-                return [
-                    'title'=> "Create new <?= $modelClass ?>",
-                    'content'=>$this->renderAjax('create', [
+                    'title' => "Új <?= $modelClass ?>",
+                    'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
-        
+                    'footer' => Html::button('Mehet', ['class' => 'btn btn-primary','type' =>"submit"])
                 ];         
             }
-        }else{
-            /*
-            *   Process for non-ajax request
-            */
+        } else {
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', <?= $urlParams ?>]);
             } else {
@@ -172,7 +133,6 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
                 ]);
             }
         }
-       
     }
 
     /**
@@ -182,49 +142,32 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
      * @return mixed
      */
-    public function actionUpdate(<?= $actionParams ?>)
-    {
+    public function actionUpdate(<?= $actionParams ?>) {
         $request = Yii::$app->request;
         $model = $this->findModel(<?= $actionParams ?>);       
 
-        if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "Update <?= $modelClass ?> #".<?= $actionParams ?>,
-                    'content'=>$this->renderAjax('update', [
+                    'title' => "<?= $modelClass ?> #".<?= $actionParams ?>." módosítása",
+                    'content' =>$this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
+                    'footer' => Html::button('Mehet',['class' => 'btn btn-primary','type' =>"submit"])
                 ];         
-            }else if($model->load($request->post()) && $model->save()){
-                return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "<?= $modelClass ?> #".<?= $actionParams ?>,
-                    'content'=>$this->renderAjax('view', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Edit',['update','<?= substr($actionParams,1) ?>'=><?= $actionParams ?>],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];    
-            }else{
+            } else if ($model->load($request->post()) && $model->save()) {
+                return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+            } else {
                  return [
-                    'title'=> "Update <?= $modelClass ?> #".<?= $actionParams ?>,
-                    'content'=>$this->renderAjax('update', [
+                    'title' => "<?= $modelClass ?> #".<?= $actionParams ?>." módosítása",
+                    'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
+                    'footer' => Html::button('Mehet', ['class' => 'btn btn-primary','type' =>"submit"])
                 ];        
             }
-        }else{
-            /*
-            *   Process for non-ajax request
-            */
+        } else {
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', <?= $urlParams ?>]);
             } else {
@@ -242,25 +185,16 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
      * @return mixed
      */
-    public function actionDelete(<?= $actionParams ?>)
-    {
+    public function actionDelete(<?= $actionParams ?>) {
         $request = Yii::$app->request;
         $this->findModel(<?= $actionParams ?>)->delete();
 
-        if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }else{
-            /*
-            *   Process for non-ajax request
-            */
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
             return $this->redirect(['index']);
         }
-
-
     }
 
      /**
@@ -270,28 +204,20 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
      * @return mixed
      */
-    public function actionBulkdelete()
-    {        
+    public function actionBulkdelete() {        
         $request = Yii::$app->request;
         $pks = explode(',', $request->post( 'pks' )); // Array or selected records primary keys
-        foreach ( $pks as $pk ) {
+        foreach ($pks as $pk) {
             $model = $this->findModel($pk);
             $model->delete();
         }
 
-        if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }else{
-            /*
-            *   Process for non-ajax request
-            */
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
             return $this->redirect(['index']);
         }
-       
     }
 
     /**
@@ -301,8 +227,7 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      * @return <?=                   $modelClass ?> the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel(<?= $actionParams ?>)
-    {
+    protected function findModel(<?= $actionParams ?>) {
 <?php
 if (count($pks) === 1) {
     $condition = '$id';
@@ -317,7 +242,7 @@ if (count($pks) === 1) {
         if (($model = <?= $modelClass ?>::findOne(<?= $condition ?>)) !== null) {
             return $model;
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('A model nem található.');
         }
     }
 }

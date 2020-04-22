@@ -16,7 +16,7 @@ use yii\helpers\Html;
 ?>
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-update">
 
-    <?= "<?= " ?>$this->render('_form', [
+    <?= "<?= " ?>$this->render('partials/_form', [
         'model' => $model,
     ]) ?>
 
