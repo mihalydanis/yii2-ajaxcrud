@@ -44,7 +44,7 @@ use yii\helpers\Html;
 /**
  * <?= $controllerClass ?> implements the CRUD actions for <?= $modelClass ?> model.
  */
-class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?> {
+class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) ?> {
     /**
      * Lists all <?= $modelClass ?> models.
      * @return mixed
@@ -80,7 +80,7 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
         if ($request->isAjax){
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'title' => "<?= $modelClass ?> #".<?= $actionParams ?>,
+                'title' => "<?= $modelClass ?> #" . <?= $actionParams ?>,
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel(<?= $actionParams ?>),
                 ])
@@ -104,13 +104,13 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet) {
+            if ($request->isGet) {
                 return [
                     'title' => "Új <?= $modelClass ?>",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button('Mehet',['class' => 'btn btn-primary','type' =>"submit"])
+                    'footer' => Html::button('Mehet', ['class' => 'btn btn-primary','type' =>"submit"])
         
                 ];         
             } else if ($model->load($request->post()) && $model->save()){
@@ -150,17 +150,17 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => "<?= $modelClass ?> #".<?= $actionParams ?>." módosítása",
+                    'title' => "<?= $modelClass ?> #" . <?= $actionParams ?> . " módosítása",
                     'content' =>$this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button('Mehet',['class' => 'btn btn-primary','type' =>"submit"])
+                    'footer' => Html::button('Mehet', ['class' => 'btn btn-primary','type' =>"submit"])
                 ];         
             } else if ($model->load($request->post()) && $model->save()) {
                 return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
             } else {
                  return [
-                    'title' => "<?= $modelClass ?> #".<?= $actionParams ?>." módosítása",
+                    'title' => "<?= $modelClass ?> #" . <?= $actionParams ?> . " módosítása",
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),

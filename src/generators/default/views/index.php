@@ -14,7 +14,6 @@ echo "<?php\n";
 ?>
 use yii\helpers\Html;
 use kartik\grid\GridView;
-use johnitvn\ajaxcrud\CrudAsset; 
 use johnitvn\ajaxcrud\BulkButtonWidget;
 
 /* @var $this yii\web\View */
